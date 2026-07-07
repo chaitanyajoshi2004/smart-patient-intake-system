@@ -17,6 +17,7 @@ import {
   Tooltip, ResponsiveContainer, Legend
 } from "recharts";
 import { Toaster, toast } from "sonner";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Screen = "login" | "dashboard" | "registration" | "records" | "details" | "triage" | "reports" | "settings";
@@ -1156,10 +1157,11 @@ function RecordsScreen({ patients, onNavigate, onSelectPatient }: {
   const [filterDept, setFilterDept] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(search, 250);
   const PER_PAGE = 5;
 
   const filtered = patients.filter(p => {
-    const q = search.toLowerCase();
+    const q = debouncedSearch.toLowerCase();
     const matchSearch = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.phone.includes(q);
     const matchUrgency = filterUrgency === "all" || p.urgency === filterUrgency;
     const matchDept = filterDept === "all" || p.department === filterDept;

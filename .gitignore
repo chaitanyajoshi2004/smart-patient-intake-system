@@ -7,9 +7,18 @@ dist/
 # Environment variables
 .env
 .env.local
+backend/.env
 
 # Logs
 *.log
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+backend/.venv/
 
 # IDE
 .vscode/
