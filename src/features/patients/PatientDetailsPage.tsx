@@ -78,14 +78,25 @@ export function PatientDetailsPage() {
       </Card>
       <Card>
         <Tabs value={tab} onChange={(_, next) => setTab(next)} sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tab label="Overview" />
           <Tab label="Medical History" />
+          <Tab label="Vitals" />
           <Tab label="Visits" />
           <Tab label="Prescriptions" />
-          <Tab label="Vitals" />
           <Tab label="Reports" />
+          <Tab label="Timeline" />
         </Tabs>
         <CardContent>
           {tab === 0 && (
+            <Grid container spacing={2}>
+              {[["History Records", patient.medical_history.length], ["Vitals", patient.vitals.length], ["Visits", patient.visits.length], ["Prescriptions", patient.prescriptions.length], ["Reports", patient.reports.length]].map(([label, value]) => (
+                <Grid key={label} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <Card variant="outlined"><CardContent><Typography color="text.secondary">{label}</Typography><Typography variant="h5">{value}</Typography></CardContent></Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+          {tab === 1 && (
             <Stack spacing={2}>
               {patient.medical_history.length === 0 ? <Typography color="text.secondary">No history recorded.</Typography> : patient.medical_history.map(item => (
                 <Box key={item.id} sx={{ borderLeft: 3, borderColor: "primary.main", pl: 2 }}>
@@ -96,7 +107,18 @@ export function PatientDetailsPage() {
               ))}
             </Stack>
           )}
-          {tab === 1 && (
+          {tab === 2 && (
+            <Stack spacing={1.5}>
+              {patient.vitals.length === 0 ? <Typography color="text.secondary">No vitals recorded.</Typography> : patient.vitals.map(vital => (
+                <Box key={vital.id}>
+                  <Typography fontWeight={700}>{new Date(vital.recorded_at).toLocaleString()}</Typography>
+                  <Typography color="text.secondary">BP {vital.blood_pressure || "-"} · HR {vital.heart_rate || "-"} · BMI {vital.bmi || "-"}</Typography>
+                  <Typography variant="body2">Temp {vital.temperature || "-"} · Oxygen {vital.oxygen_level || "-"}</Typography>
+                </Box>
+              ))}
+            </Stack>
+          )}
+          {tab === 3 && (
             <Stack spacing={1.5}>
               {patient.visits.length === 0 ? <Typography color="text.secondary">No visits recorded.</Typography> : patient.visits.map(visit => (
                 <Box key={visit.id}>
@@ -107,7 +129,44 @@ export function PatientDetailsPage() {
               ))}
             </Stack>
           )}
-          {tab > 1 && <Typography color="text.secondary">No records available for this section.</Typography>}
+          {tab === 4 && (
+            <Stack spacing={1.5}>
+              {patient.prescriptions.length === 0 ? <Typography color="text.secondary">No prescriptions recorded.</Typography> : patient.prescriptions.map(prescription => (
+                <Box key={prescription.id}>
+                  <Typography fontWeight={700}>{prescription.medicine_name}</Typography>
+                  <Typography color="text.secondary">{prescription.dosage || "-"} · {prescription.frequency || "-"} · {prescription.duration || "-"}</Typography>
+                  <Typography variant="body2">{prescription.instructions || "No instructions"}</Typography>
+                </Box>
+              ))}
+            </Stack>
+          )}
+          {tab === 5 && (
+            <Stack spacing={1.5}>
+              {patient.reports.length === 0 ? <Typography color="text.secondary">No reports uploaded.</Typography> : patient.reports.map(report => (
+                <Box key={report.id}>
+                  <Typography fontWeight={700}>{report.report_name}</Typography>
+                  <Typography color="text.secondary">{report.report_type} · {new Date(report.uploaded_at).toLocaleString()}</Typography>
+                  <Button size="small" href={report.file_path} target="_blank">Open</Button>
+                </Box>
+              ))}
+            </Stack>
+          )}
+          {tab === 6 && (
+            <Stack spacing={2}>
+              {[...patient.medical_history.map(item => ({ id: `history-${item.id}`, title: item.condition_name, date: item.diagnosed_date || item.created_at, detail: item.diagnosis || item.description || "History" })),
+                ...patient.visits.map(item => ({ id: `visit-${item.id}`, title: item.visit_type, date: item.visit_date, detail: item.status })),
+                ...patient.vitals.map(item => ({ id: `vital-${item.id}`, title: "Vitals recorded", date: item.recorded_at, detail: `BP ${item.blood_pressure || "-"} · HR ${item.heart_rate || "-"}` })),
+                ...patient.prescriptions.map(item => ({ id: `prescription-${item.id}`, title: item.medicine_name, date: item.created_at, detail: item.dosage || "Prescription" })),
+                ...patient.reports.map(item => ({ id: `report-${item.id}`, title: item.report_name, date: item.uploaded_at, detail: item.report_type })),
+              ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(item => (
+                <Box key={item.id} sx={{ borderLeft: 3, borderColor: "divider", pl: 2 }}>
+                  <Typography fontWeight={700}>{item.title}</Typography>
+                  <Typography color="text.secondary" variant="body2">{new Date(item.date).toLocaleString()}</Typography>
+                  <Typography variant="body2">{item.detail}</Typography>
+                </Box>
+              ))}
+            </Stack>
+          )}
         </CardContent>
       </Card>
       <Dialog open={historyOpen} onClose={() => setHistoryOpen(false)} maxWidth="sm" fullWidth>

@@ -21,8 +21,10 @@ import { useNavigate } from "react-router";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { EmptyState } from "../../components/common/EmptyState";
 import { PageHeader } from "../../components/common/PageHeader";
+import { TableToolbar } from "../../components/common/TableToolbar";
 import { patientApi } from "../../services/patientApi";
 import type { Patient, PatientPayload } from "../../types/api";
+import { exportCsv } from "../../utils/exportCsv";
 import { PatientFormDialog } from "./PatientFormDialog";
 
 export function PatientsPage() {
@@ -65,7 +67,6 @@ export function PatientsPage() {
       <PageHeader title="Patients" subtitle="Search, register, edit, and review patient records" actionLabel="Add Patient" onAction={() => setDialogOpen(true)} />
       <Card sx={{ p: 2, mb: 2 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField label="Search" placeholder="Name, phone, patient code" value={search} onChange={event => { setPage(0); setSearch(event.target.value); }} fullWidth />
           <TextField select label="Gender" value={gender} onChange={event => setGender(event.target.value)} sx={{ minWidth: 180 }}>
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Male">Male</MenuItem>
@@ -75,6 +76,18 @@ export function PatientsPage() {
         </Stack>
       </Card>
       <Card>
+        <TableToolbar
+          search={search}
+          onSearch={value => { setPage(0); setSearch(value); }}
+          onExportCsv={() => exportCsv("patients.csv", (query.data?.data || []).map(patient => ({
+            code: patient.patient_code,
+            name: `${patient.first_name} ${patient.last_name}`,
+            phone: patient.phone,
+            gender: patient.gender,
+            blood_group: patient.blood_group,
+          })))}
+          onPrint={() => window.print()}
+        />
         {query.data?.data.length === 0 ? <EmptyState title="No patients found" description="Try another search or add a new patient." /> : (
           <Box sx={{ overflowX: "auto" }}>
             <Table>

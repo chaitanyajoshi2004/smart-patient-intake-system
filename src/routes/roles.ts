@@ -1,10 +1,19 @@
 import type { UserRole } from "../types/api";
 
 export const ROLE_ACCESS: Record<UserRole, string[]> = {
-  admin: ["/dashboard", "/users", "/patients", "/visits", "/medical-history", "/settings"],
-  doctor: ["/dashboard", "/patients", "/visits", "/medical-history"],
-  nurse: ["/dashboard", "/patients", "/visits", "/medical-history"],
-  staff: ["/dashboard", "/patients", "/visits"],
+  admin: [
+    "/dashboard", "/users", "/patients", "/visits", "/medical-history", "/vitals",
+    "/prescriptions", "/reports", "/ai-triage", "/analytics", "/billing", "/pharmacy",
+    "/laboratory", "/inventory", "/notifications", "/settings", "/reception", "/portal",
+  ],
+  doctor: [
+    "/dashboard", "/doctor", "/patients", "/visits", "/medical-history", "/vitals",
+    "/prescriptions", "/reports", "/ai-triage", "/analytics", "/portal",
+  ],
+  nurse: [
+    "/dashboard", "/patients", "/visits", "/medical-history", "/vitals", "/reports", "/portal",
+  ],
+  staff: ["/dashboard", "/reception", "/patients", "/visits", "/medical-history", "/portal"],
 };
 
 export function canAccess(role: UserRole, path: string) {

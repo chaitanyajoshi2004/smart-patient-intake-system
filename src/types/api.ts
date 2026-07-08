@@ -4,6 +4,9 @@ export interface AuthUser {
   id: number;
   full_name: string;
   role: UserRole;
+  email?: string;
+  phone?: string | null;
+  profile_image?: string | null;
 }
 
 export interface User extends AuthUser {
@@ -89,6 +92,100 @@ export interface MedicalHistoryPayload {
   diagnosed_date?: string;
 }
 
+export interface Vital {
+  id: number;
+  patient_id: number;
+  visit_id?: number | null;
+  height?: number | null;
+  weight?: number | null;
+  bmi?: number | null;
+  temperature?: number | null;
+  blood_pressure?: string | null;
+  heart_rate?: number | null;
+  oxygen_level?: number | null;
+  recorded_at: string;
+}
+
+export interface VitalPayload {
+  patient_id: number;
+  visit_id?: number;
+  height?: number;
+  weight?: number;
+  bmi?: number;
+  temperature?: number;
+  blood_pressure?: string;
+  heart_rate?: number;
+  oxygen_level?: number;
+}
+
+export interface Prescription {
+  id: number;
+  patient_id: number;
+  doctor_id?: number | null;
+  visit_id?: number | null;
+  medicine_name: string;
+  dosage?: string | null;
+  frequency?: string | null;
+  duration?: string | null;
+  instructions?: string | null;
+  created_at: string;
+}
+
+export interface PrescriptionPayload {
+  patient_id: number;
+  doctor_id?: number;
+  visit_id?: number;
+  medicine_name: string;
+  dosage?: string;
+  frequency?: string;
+  duration?: string;
+  instructions?: string;
+  status?: string;
+}
+
+export interface MedicalReport {
+  id: number;
+  patient_id: number;
+  uploaded_by?: number | null;
+  report_name: string;
+  report_type: string;
+  file_path: string;
+  uploaded_at: string;
+}
+
+export interface AITriageRecord {
+  id: number;
+  patient_id: number;
+  symptoms: string;
+  severity_level: "low" | "medium" | "high" | "critical";
+  risk_score?: number | null;
+  ai_prediction?: string | null;
+  recommendation?: string | null;
+  confidence_score?: number | null;
+  created_at: string;
+}
+
+export interface NotificationItem {
+  id: number;
+  user_id: number;
+  title: string;
+  message: string;
+  notification_type: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface ClinicSettings {
+  id: number;
+  clinic_name: string;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  logo?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export type VisitStatus = "scheduled" | "checked_in" | "in_progress" | "completed" | "cancelled";
 
 export interface Visit {
@@ -116,7 +213,7 @@ export interface VisitPayload {
 export interface PatientDetails extends Patient {
   medical_history: MedicalHistory[];
   visits: Visit[];
-  prescriptions: unknown[];
-  vitals: unknown[];
-  reports: unknown[];
+  prescriptions: Prescription[];
+  vitals: Vital[];
+  reports: MedicalReport[];
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -16,22 +16,30 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
 } from "@mui/material";
+import { useSearchParams } from "react-router";
 import { PageHeader } from "../../components/common/PageHeader";
 import { EmptyState } from "../../components/common/EmptyState";
+import { TableToolbar } from "../../components/common/TableToolbar";
 import { visitApi } from "../../services/visitApi";
 import type { VisitPayload, VisitStatus } from "../../types/api";
+import { exportCsv } from "../../utils/exportCsv";
 
 const statuses: VisitStatus[] = ["scheduled", "checked_in", "in_progress", "completed", "cancelled"];
 
 export function VisitsPage() {
+  const [searchParams] = useSearchParams();
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<VisitStatus | "">("");
   const [patientId, setPatientId] = useState("");
   const [doctorId, setDoctorId] = useState("");
   const [date, setDate] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const { register, handleSubmit, reset } = useForm<VisitPayload>({ defaultValues: { status: "scheduled" } });
   const queryClient = useQueryClient();
 
@@ -44,6 +52,24 @@ export function VisitsPage() {
       doctor_id: doctorId ? Number(doctorId) : undefined,
     }),
   });
+
+  useEffect(() => {
+    const routeStatus = searchParams.get("status") as VisitStatus | null;
+    const routeDate = searchParams.get("date");
+    const routePatientId = searchParams.get("patient_id");
+
+    setStatus(routeStatus && statuses.includes(routeStatus) ? routeStatus : "");
+    setDate(routeDate === "today" ? new Date().toISOString().slice(0, 10) : routeDate || "");
+    setPatientId(routePatientId || "");
+  }, [searchParams]);
+
+  const filteredVisits = useMemo(() => (
+    (query.data || []).filter(visit => (
+      !search || [visit.visit_type, visit.reason, visit.status, String(visit.patient_id), String(visit.doctor_id || "")].some(value => value?.toLowerCase().includes(search.toLowerCase()))
+    ))
+  ), [query.data, search]);
+
+  const pagedVisits = useMemo(() => filteredVisits.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [filteredVisits, page, rowsPerPage]);
 
   const mutation = useMutation({
     mutationFn: (payload: VisitPayload) => visitApi.create({ ...payload, patient_id: Number(payload.patient_id), doctor_id: payload.doctor_id ? Number(payload.doctor_id) : undefined }),
@@ -70,12 +96,25 @@ export function VisitsPage() {
         </Stack>
       </Card>
       <Card>
-        {query.data?.length === 0 ? <EmptyState title="No visits found" /> : (
+        <TableToolbar
+          search={search}
+          onSearch={setSearch}
+          onExportCsv={() => exportCsv("visits.csv", filteredVisits.map(visit => ({
+            id: visit.id,
+            patient_id: visit.patient_id,
+            doctor_id: visit.doctor_id,
+            visit_date: visit.visit_date,
+            status: visit.status,
+            reason: visit.reason,
+          })))}
+          onPrint={() => window.print()}
+        />
+        {filteredVisits.length === 0 ? <EmptyState title="No visits found" /> : (
           <Box sx={{ overflowX: "auto" }}>
-            <Table>
+            <Table stickyHeader>
               <TableHead><TableRow><TableCell>Date</TableCell><TableCell>Patient</TableCell><TableCell>Doctor</TableCell><TableCell>Type</TableCell><TableCell>Status</TableCell><TableCell>Reason</TableCell></TableRow></TableHead>
               <TableBody>
-                {query.data?.map(visit => (
+                {pagedVisits.map(visit => (
                   <TableRow key={visit.id}>
                     <TableCell>{new Date(visit.visit_date).toLocaleString()}</TableCell>
                     <TableCell>{visit.patient_id}</TableCell>
@@ -89,6 +128,7 @@ export function VisitsPage() {
             </Table>
           </Box>
         )}
+        <TablePagination component="div" count={filteredVisits.length} page={page} rowsPerPage={rowsPerPage} onPageChange={(_, next) => setPage(next)} onRowsPerPageChange={event => { setRowsPerPage(Number(event.target.value)); setPage(0); }} />
       </Card>
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Create Visit</DialogTitle>

@@ -1,0 +1,38 @@
+Symptoms                  Department             Urgency
+---------------------------------------------------------------
+chest pain                Cardiology            Urgent
+shortness of breath       Pulmonology           Urgent
+difficulty breathing      Emergency             Urgent
+left arm pain             Cardiology            Urgent
+severe headache           Neurology             Priority
+dizziness                 Neurology             Priority
+unconscious               Emergency             Urgent
+seizure                   Neurology             Urgent
+stroke                    Neurology             Urgent
+fever                     General Medicine      Routine
+cough                     General Medicine      Routine
+sore throat               ENT                   Routine
+cold                      General Medicine      Routine
+abdominal pain            Gastroenterology      Priority
+vomiting                  Gastroenterology      Priority
+diarrhea                  Gastroenterology      Routine
+nausea                    Gastroenterology      Routine
+back pain                 Orthopedics           Routine
+knee pain                 Orthopedics           Routine
+fracture                  Orthopedics           Urgent
+bone pain                 Orthopedics           Priority
+skin rash                 Dermatology           Routine
+itching                   Dermatology           Routine
+allergy                   Dermatology           Priority
+pregnancy pain            Gynecology            Priority
+bleeding during pregnancy Gynecology            Urgent
+eye pain                  Ophthalmology         Priority
+blurred vision            Ophthalmology         Priority
+ear pain                  ENT                   Routine
+tooth pain                Dental                Routine
+anxiety                   Psychiatry            Routine
+depression                Psychiatry            Priority
+suicidal thoughts         Psychiatry            Urgent
+burns                     Emergency             Urgent
+trauma                    Emergency             Urgent
+accident                  Emergency             Urgent
