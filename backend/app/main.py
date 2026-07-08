@@ -35,12 +35,12 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(SQLAlchemyError)
-async def sqlalchemy_exception_handler(_: Request, __: SQLAlchemyError) -> JSONResponse:
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "A database error occurred. Please try again later."},
-    )
+# @app.exception_handler(SQLAlchemyError)
+# async def sqlalchemy_exception_handler(_: Request, __: SQLAlchemyError) -> JSONResponse:
+#     return JSONResponse(
+#         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#         content={"detail": "A database error occurred. Please try again later."},
+#     )
 
 
 @app.get("/", tags=["Health"])
